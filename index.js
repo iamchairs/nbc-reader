@@ -68,6 +68,16 @@ module.exports = (function() {
                }
             }
 
+            if(!body.getElementsByTagName) {
+               if(cb) {
+                  cb(null);
+               }
+
+               defer.resolve(null);
+               
+               return false;
+            }
+
             var ps = body.getElementsByTagName('p');
 
             var bodyCleanStrings = [];
@@ -110,9 +120,11 @@ module.exports = (function() {
 
             var times = dom.getElementsByTagName('time');
             var time = times[0];
-            var datetime = time.getAttribute('datetime');
 
-            Article.datetime = new Date(datetime).toISOString().replace('T', ' ').replace('Z', '') + ' GMT+0000';
+            if(time) {
+               var datetime = time.getAttribute('datetime');
+               Article.datetime = new Date(datetime).toISOString().replace('T', ' ').replace('Z', '') + ' GMT+0000';
+            }
 
             if(cb) {
                cb(Article);
