@@ -5,6 +5,7 @@ module.exports = (function() {
    var xmldom = new require('xmldom');
    var q = require('q');
    var sanitizehtml = require('sanitize-html'); 
+   var toMarkdown = require('./markdown');
 
    return NBCReader;
 
@@ -100,15 +101,13 @@ module.exports = (function() {
                   allowedTags: self.cleanTags,
                   allowedAttributes: self.cleanAttributes
                }));
-
-               bodyMinimalStrings.push(sanitizehtml(raw, {
-                  allowedTags: self.minimalTags,
-                  allowedAttributes: self.minimalAttributes
-               }));
             }
 
+            var markdown = toMarkdown(body);
+            console.log(markdown);
+
             Article.body.clean = bodyCleanStrings.join('\n\n');
-            Article.body.minimal = bodyMinimalStrings.join('');
+            Article.body.markdown = markdown;
 
             var imgs = body.getElementsByTagName('img');
             for(var i = 0; i < imgs.length; i++) {
