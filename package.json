@@ -1,6 +1,6 @@
 {
   "name": "nbc-reader",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Reads an NBC article from nbcnews.com",
   "main": "index.js",
   "scripts": {

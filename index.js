@@ -35,10 +35,7 @@ module.exports = (function() {
 
          request(url, function(error, response, body) {
             if(error) {
-               defer.reject(error);
-               if(cb) {
-                  cb(error);
-               }
+               return err(error);
             }
 
             var Article = {
@@ -59,13 +56,7 @@ module.exports = (function() {
             } catch(e) {}
 
             if(!dom) {
-               if(cb) {
-                  cb(null);
-               }
-
-               defer.resolve(null);
-
-               return false;
+               return err('wasnt able to read dom');
             }
 
             var divs = dom.getElementsByTagName('div');
@@ -79,14 +70,8 @@ module.exports = (function() {
                }
             }
 
-            if(!body.getElementsByTagName) {
-               if(cb) {
-                  cb(null);
-               }
-
-               defer.resolve(null);
-               
-               return false;
+            if(!body || !body.getElementsByTagName) {
+               return err('wasnt able to find dom body');
             }
 
             var ps = body.getElementsByTagName('p');
@@ -104,7 +89,6 @@ module.exports = (function() {
             }
 
             var markdown = toMarkdown(body);
-            console.log(markdown);
 
             Article.body.clean = bodyCleanStrings.join('\n\n');
             Article.body.markdown = markdown;
@@ -141,10 +125,12 @@ module.exports = (function() {
             var times = dom.getElementsByTagName('time');
             var time = times[0];
 
-            if(time) {
-               var datetime = time.getAttribute('datetime');
-               Article.datetime = new Date(datetime).toISOString().replace('T', ' ').replace('Z', '') + ' GMT+0000';
+            if(!time) {
+               return err('unable to find datetime');
             }
+
+            var datetime = time.getAttribute('datetime');
+            Article.datetime = new Date(datetime).toISOString().replace('T', ' ').replace('Z', '') + ' GMT+0000';
 
             if(cb) {
                cb(Article);
@@ -154,6 +140,18 @@ module.exports = (function() {
          });
 
          return defer.promise;
+
+         function err(str) {
+            console.error('Error from url: ' + url);
+            console.error(str);
+            defer.resolve(null);
+
+            if(cb) {
+               cb(null);
+            }
+
+            return false;
+         }
       }
    }
 })();
